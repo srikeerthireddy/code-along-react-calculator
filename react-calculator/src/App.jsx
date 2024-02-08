@@ -3,6 +3,8 @@ import {useReducer, useState} from 'react';
 import './App.css';
 const initialState={
   input:"",
+  result:"",
+  calculatingStatus:true,
 };
 const reducer=(state,action)=>{
   switch (action.type){
@@ -14,17 +16,33 @@ const reducer=(state,action)=>{
           return{
           ...state,
           input:state.input.slice(0,-1)+action.payload,
+          calculatingStatus:true,
           }
         }else{
-          return {...state,input:state.input+action.payload};
+          return {...state,input:state.input+action.payload,
+          calculatingStatus:true,
+          };
         
       }
-    case "CALCULATE":
-      return {...state,input:eval(state.input).toString()}; 
+      case "CALCULATE":
+            if (state.input == "") return state;
+
+            try {
+                return {
+                    ...state,
+                    calculatingStatus: false,
+                    result: eval(state.input).toString(),
+                    input: "",
+                };
+            } catch (error) {
+                return { ...state, input: "Error", calculatingStatus: true };
+            } 
     case "CLEAR":
       return initialState;
     case "DELETE":
-      return  {...state,input:state.input.slice(0,-1)}  ;
+      return  {...state,input:state.input.slice(0,-1),
+      calculatingStatus:true,
+      }  ;
     default:
       return state;    
   }
@@ -54,7 +72,7 @@ function App() {
     <div className='main-container'>
         <h1>Calculator App</h1>
         <div>
-          <input type="text" placeholder='0' readOnly value={state.input}/>
+          <input type="text" placeholder='0' readOnly value={state.calculatingStatus?state.input:state.result}/>
         </div>
         <div>
           <div className='container'>
